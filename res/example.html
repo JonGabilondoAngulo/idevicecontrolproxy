@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<title>Websocket example</title>
+<script>
+
+  var socket2 = new WebSocket( "ws://" + 'localhost' + ':' + 8000);//, "idevice-control-protocol");
+  function update2(msg) { document.getElementById("num2").innerHTML = msg; }
+  socket2.onopen = function() { console.log("socket open"); update2("open2"); }
+  socket2.onclose = function() { console.log("socket close"); update2("closed2"); }
+  socket2.onmessage = function(msg) { console.log("socket message: " + msg.data); update2(msg.data); }
+  socket2.send("SENDING A MESSAGE\n");
+</script>
+<body>
+<p id="num1">1</p>
+<p id="num2">2</p>
+<p id="num3">3</p>
+</body>
+</html>
