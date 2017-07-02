@@ -6,10 +6,10 @@
 #include "errors.h"
 #include "whitelist.h"
 
-#define IDCP_WHITELIST_MAX_TOKENS 256
 
+static const char * IDCP_KEY_CMDS = "cmds";
 static jsmn_parser whitelist_p;
-static jsmntok_t t[IDCP_WHITELIST_MAX_TOKENS];
+static jsmntok_t t[32];  // We have a simple JSON, do not expect more that 4 tokens.
 static int r = 0;
 static char *source = NULL;
 
@@ -135,7 +135,7 @@ int whitelist_create_parser(char * source, long len)
      {"cmds" : ["cmd1",...]}
      */
     for (i = 1; i < r; i++) {
-        if (jsoneq(source, &t[i], "cmds") == 0) {
+        if (jsoneq(source, &t[i], IDCP_KEY_CMDS) == 0) {
             int j;
             if (t[i+1].type != JSMN_ARRAY) {
                 err = IDCP_ERROR_PARSING_WHITELIST; // We expect cmds to be an array of strings
@@ -175,7 +175,7 @@ int whitelist_validate_cmd(const char * cmd)
     }
     
     /* Loop over all commands to find match */
-    if (jsoneq(source, &t[i], "cmds") != 0) {
+    if (jsoneq(source, &t[i], IDCP_KEY_CMDS) != 0) {
         return err;
     }
     if (t[i+1].type != JSMN_ARRAY) {
