@@ -1,9 +1,10 @@
 #include <libwebsockets.h>
 #include <string.h>
 #include <stdio.h>
+#include "jsmn/jsmn.h"
+#include "json_ext.h"
 #include "errors.h"
 #include "whitelist.h"
-#include "jsmn/jsmn.h"
 
 #define IDCP_WHITELIST_MAX_TOKENS 256
 
@@ -15,16 +16,11 @@ static char *source = NULL;
 int whitelist_load_whitelist(char ** source, long * len);
 int whitelist_create_parser(char * source, long len);
 
-
-static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
-    if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
-        strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
-        return 0;
-    }
-    return -1;
-}
-
-
+/**
+ Load and parses the withelist.json configuration file. Keeps a parser on memeory for further requests for command validations.
+ 
+ @return 0 if success.
+ */
 int whitelist_init( )
 {
     int err = IDCP_SUCCESS;
@@ -42,6 +38,11 @@ int whitelist_init( )
 	return err;
 }
 
+/**
+ Dispose the whitelist parser from memory.
+ 
+ @return 0 Success.
+ */
 int whitelist_terminate( )
 {
     if (source) {
@@ -51,7 +52,13 @@ int whitelist_terminate( )
     return IDCP_SUCCESS;
 }
 
-
+/**
+ Load the content of whitelist.json file into memory.
+ 
+ @param content Will contain the content of the file.
+ @param len Will containthe length of the content.
+ @return 0 Success.
+ */
 int whitelist_load_whitelist(char ** content, long * len)
 {
     int err = IDCP_SUCCESS;
@@ -101,6 +108,13 @@ CLEANUP:
     return err;
 }
 
+/**
+ Parses a withelist JSON to validate and load the JSMIN token for later use.
+ 
+ @param source The whitelist content as a string.
+ @param len The length of the string.
+ @return 0 Success.
+ */
 int whitelist_create_parser(char * source, long len)
 {
     int err = IDCP_SUCCESS;
@@ -144,6 +158,12 @@ int whitelist_create_parser(char * source, long len)
     return err;
 }
 
+/**
+ Validates if the given command is in the whitelist.
+ 
+ @param cmd The command to validate.
+ @return 0 is Success.
+ */
 int whitelist_validate_cmd(const char * cmd)
 {
     int i = 1;

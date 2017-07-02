@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <sstream>
 #include "whitelist.h"
-#include "cmdp.h"
+#include "cmd.h"
 #include "errors.h"
 #include "jsmn/jsmn.h"
 
@@ -24,7 +24,7 @@ static int callback_http( struct lws *wsi, enum lws_callback_reasons reason, voi
         case LWS_CALLBACK_RECEIVE:
         {
             stringstream response;
-            cmdp_process((const char*)in, len, response);
+            cmd_process((const char*)in, len, response);
             
             received_payload.data1  = response.str();
             received_payload.len = received_payload.data1.length();
